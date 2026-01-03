@@ -34,3 +34,17 @@ cp .env.example .env
 | `npm run docker:logs`    | View container logs (follow mode)  |
 | `npm run docker:restart` | Restart containers                 |
 | `npm run docker:clean`   | Stop containers and remove volumes |
+
+### Linting and Formatting
+
+This project uses [Biome](https://biomejs.dev/) for linting and formatting.
+
+| Script                 | Description                                               |
+| ---------------------- | --------------------------------------------------------- |
+| `npm run lint`         | Check for linting issues                                  |
+| `npm run lint:fix`     | Fix linting issues (safe fixes)                           |
+| `npm run lint:fix:all` | Fix linting issues (including unsafe fixes)               |
+| `npm run format`       | Check formatting                                          |
+| `npm run format:fix`   | Fix formatting issues                                     |
+| `npm run check`        | Run both linting and formatting checks                    |
+| `npm run check:fix`    | Fix both linting and formatting issues (including unsafe) |
