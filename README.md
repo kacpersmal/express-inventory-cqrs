@@ -1,0 +1,36 @@
+# Express Inventory CQRS
+
+## Local Development Setup
+
+### Prerequisites
+
+- Docker & Docker Compose
+- Node.js
+
+### Environment Variables
+
+Copy the example environment file and adjust values as needed:
+
+```bash
+cp .env.example .env
+```
+
+| Variable                     | Description                            | Default                                                                 |
+| ---------------------------- | -------------------------------------- | ----------------------------------------------------------------------- |
+| `DOCKER_MONGO_ROOT_USERNAME` | MongoDB root username (docker-compose) | `root`                                                                  |
+| `DOCKER_MONGO_ROOT_PASSWORD` | MongoDB root password (docker-compose) | `root`                                                                  |
+| `DOCKER_MONGO_DATABASE`      | MongoDB database name (docker-compose) | `inventory_system`                                                      |
+| `MONGODB_URI`                | MongoDB connection string for the app  | `mongodb://root:root@localhost:27017/inventory_system?authSource=admin` |
+| `REDIS_URL`                  | Redis connection string for the app    | `redis://localhost:6379`                                                |
+
+> **Note:** The `DOCKER_*` variables are only used by docker-compose to configure the containers. The `MONGODB_URI` and `REDIS_URL` are used by the application to connect to these services.
+
+### Running Services with Docker Compose
+
+| Script                   | Description                        |
+| ------------------------ | ---------------------------------- |
+| `npm run docker`         | Start containers in detached mode  |
+| `npm run docker:down`    | Stop containers                    |
+| `npm run docker:logs`    | View container logs (follow mode)  |
+| `npm run docker:restart` | Restart containers                 |
+| `npm run docker:clean`   | Stop containers and remove volumes |
