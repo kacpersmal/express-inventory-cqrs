@@ -22,6 +22,7 @@ cp .env.example .env
 | `DOCKER_MONGO_DATABASE`      | MongoDB database name (docker-compose) | `inventory_system`                                                      |
 | `MONGODB_URI`                | MongoDB connection string for the app  | `mongodb://root:root@localhost:27017/inventory_system?authSource=admin` |
 | `REDIS_URL`                  | Redis connection string for the app    | `redis://localhost:6379`                                                |
+| `PORT`                       | App Port                               | `3000`                                                                  |
 
 > **Note:** The `DOCKER_*` variables are only used by docker-compose to configure the containers. The `MONGODB_URI` and `REDIS_URL` are used by the application to connect to these services.
 
