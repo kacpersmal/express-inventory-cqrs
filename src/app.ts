@@ -5,6 +5,7 @@ import express, {
   type Response,
 } from "express";
 import pinoHttp from "pino-http";
+import { helloRoutes } from "@/features";
 import { logger } from "@/shared/logger";
 
 const app: Express = express();
@@ -16,6 +17,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/health", (_req: Request, res: Response) => {
   res.json({ status: "ok" });
 });
+
+app.use("/api/hello", helloRoutes);
 
 app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   req.log.error(err, "Unhandled error");
