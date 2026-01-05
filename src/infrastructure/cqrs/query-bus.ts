@@ -1,6 +1,6 @@
-import type { IQuery, IQueryHandler, QueryHandlerClass } from "./interfaces";
-import { QueryNotRegisteredError, DuplicateHandlerError } from "./errors";
 import { logger } from "../../shared/logger";
+import { DuplicateHandlerError, QueryNotRegisteredError } from "./errors";
+import type { IQuery, IQueryHandler, QueryHandlerClass } from "./interfaces";
 
 export class QueryBus {
   private static instance: QueryBus;
@@ -18,7 +18,7 @@ export class QueryBus {
   register<TQuery extends IQuery<TResult>, TResult = unknown>(
     queryType: string,
     HandlerClass: QueryHandlerClass<TQuery, TResult>,
-    dependencies: unknown[] = []
+    dependencies: unknown[] = [],
   ): void {
     if (this.handlers.has(queryType)) {
       throw new DuplicateHandlerError(queryType, "query");
@@ -45,7 +45,7 @@ export class QueryBus {
     } catch (error) {
       logger.error(
         { err: error, queryType: query.type },
-        "Query execution failed"
+        "Query execution failed",
       );
       throw error;
     }

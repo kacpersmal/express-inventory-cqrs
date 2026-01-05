@@ -1,10 +1,10 @@
+import { logger } from "../../shared/logger";
+import { CommandNotRegisteredError, DuplicateHandlerError } from "./errors";
 import type {
   CommandHandlerClass,
   ICommand,
   ICommandHandler,
 } from "./interfaces";
-import { CommandNotRegisteredError, DuplicateHandlerError } from "./errors";
-import { logger } from "../../shared/logger";
 
 export class CommandBus {
   private static instance: CommandBus;
@@ -22,7 +22,7 @@ export class CommandBus {
   register<TCommand extends ICommand>(
     commandType: string,
     HandlerClass: CommandHandlerClass<TCommand>,
-    dependencies: unknown[] = []
+    dependencies: unknown[] = [],
   ): void {
     if (this.handlers.has(commandType)) {
       throw new DuplicateHandlerError(commandType, "command");
@@ -46,12 +46,12 @@ export class CommandBus {
       await handler.execute(command);
       logger.debug(
         { commandType: command.type },
-        "Command executed successfully"
+        "Command executed successfully",
       );
     } catch (error) {
       logger.error(
         { err: error, commandType: command.type },
-        "Command execution failed"
+        "Command execution failed",
       );
       throw error;
     }

@@ -1,6 +1,6 @@
 import type { ICommandHandler } from "@/infrastructure/cqrs";
-import type { PostHelloCommand } from "./post-hello.schema";
 import { logger } from "@/shared/logger";
+import type { PostHelloCommand } from "./post-hello.schema";
 
 export class PostHelloHandler implements ICommandHandler<PostHelloCommand> {
   private lastResult: {

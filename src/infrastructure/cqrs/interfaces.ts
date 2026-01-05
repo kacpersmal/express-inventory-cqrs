@@ -2,7 +2,7 @@ export interface ICommand {
   readonly type: string;
 }
 
-export interface IQuery<TResult = unknown> {
+export interface IQuery<_TResult = unknown> {
   readonly type: string;
 }
 
@@ -12,7 +12,7 @@ export interface ICommandHandler<TCommand extends ICommand> {
 
 export interface IQueryHandler<
   TQuery extends IQuery<TResult>,
-  TResult = unknown
+  TResult = unknown,
 > {
   execute(query: TQuery): Promise<TResult>;
 }
@@ -23,5 +23,5 @@ export type CommandHandlerClass<TCommand extends ICommand> = new (
 
 export type QueryHandlerClass<
   TQuery extends IQuery<TResult>,
-  TResult = unknown
+  TResult = unknown,
 > = new (...args: unknown[]) => IQueryHandler<TQuery, TResult>;

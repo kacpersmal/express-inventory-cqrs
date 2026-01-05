@@ -1,4 +1,4 @@
-import { queryBus, commandBus } from "@/infrastructure/cqrs";
+import { commandBus, queryBus } from "@/infrastructure/cqrs";
 import { GetHelloHandler } from "./get-hello";
 import { PostHelloHandler } from "./post-hello";
 
