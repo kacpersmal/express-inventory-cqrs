@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { commandBus } from "@/infrastructure/cqrs";
-import { validate } from "@/shared/middleware";
 import { asyncHandler } from "@/shared/errors";
+import { validate } from "@/shared/middleware";
 import {
   type PostHelloBodyParams,
   PostHelloCommand,
@@ -13,7 +13,7 @@ export const postHelloEndpoint = [
   asyncHandler(
     async (
       req: Request<unknown, unknown, PostHelloBodyParams>,
-      res: Response
+      res: Response,
     ) => {
       const command = new PostHelloCommand(req.body);
       await commandBus.execute(command);
@@ -23,6 +23,6 @@ export const postHelloEndpoint = [
         echo: req.body.message,
         timestamp: new Date().toISOString(),
       });
-    }
+    },
   ),
 ];

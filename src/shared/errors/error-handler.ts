@@ -1,13 +1,13 @@
 import type { NextFunction, Request, Response } from "express";
 import { logger } from "../logger";
-import { formatError, getStatusCode } from "./error-formatter";
 import type { AppError } from "./app-errors";
+import { formatError, getStatusCode } from "./error-formatter";
 
 export const errorHandler = (
   err: Error | AppError,
   req: Request,
   res: Response,
-  _next: NextFunction
+  _next: NextFunction,
 ) => {
   const errorResponse = formatError(err);
   const statusCode = getStatusCode(err);
@@ -22,7 +22,7 @@ export const errorHandler = (
         query: req.query,
         params: req.params,
       },
-      "Internal server error"
+      "Internal server error",
     );
   } else if (statusCode >= 400) {
     req.log.warn(
@@ -31,7 +31,7 @@ export const errorHandler = (
         url: req.url,
         method: req.method,
       },
-      "Client error"
+      "Client error",
     );
   }
 
@@ -41,7 +41,7 @@ export const errorHandler = (
 export const notFoundHandler = (
   req: Request,
   res: Response,
-  _next: NextFunction
+  _next: NextFunction,
 ) => {
   res.status(404).json({
     success: false,

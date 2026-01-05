@@ -1,7 +1,7 @@
 import app from "@/app";
 import { config } from "@/shared/config";
-import { logger } from "@/shared/logger";
 import { setupGracefulShutdown, setupProcessHandlers } from "@/shared/errors";
+import { logger } from "@/shared/logger";
 
 const start = async () => {
   try {
@@ -13,7 +13,7 @@ const start = async () => {
           env: config.env,
           port: config.port,
         },
-        `Server running on http://localhost:${config.port}`
+        `Server running on http://localhost:${config.port}`,
       );
     });
 

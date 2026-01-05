@@ -1,8 +1,8 @@
 import express, { type Express, type Request, type Response } from "express";
 import pinoHttp from "pino-http";
 import { helloRoutes } from "@/features";
-import { logger } from "@/shared/logger";
 import { errorHandler, notFoundHandler } from "@/shared/errors";
+import { logger } from "@/shared/logger";
 
 const app: Express = express();
 

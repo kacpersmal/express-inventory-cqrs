@@ -6,7 +6,7 @@ export abstract class AppError extends Error {
   constructor(
     message: string,
     public readonly code?: string,
-    public readonly details?: unknown
+    public readonly details?: unknown,
   ) {
     super(message);
     this.name = this.constructor.name;
@@ -42,7 +42,7 @@ export class NotFoundError extends AppError {
   constructor(
     message = "Resource not found",
     code?: string,
-    details?: unknown
+    details?: unknown,
   ) {
     super(message, code, details);
   }
@@ -73,7 +73,7 @@ export class InternalServerError extends AppError {
   constructor(
     message = "Internal server error",
     code?: string,
-    details?: unknown
+    details?: unknown,
   ) {
     super(message, code, details);
   }
