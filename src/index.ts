@@ -1,4 +1,5 @@
 import app from "@/app";
+import { mongoDBClient } from "@/infrastructure/database";
 import { config } from "@/shared/config";
 import { setupGracefulShutdown, setupProcessHandlers } from "@/shared/errors";
 import { logger } from "@/shared/logger";
@@ -6,6 +7,8 @@ import { logger } from "@/shared/logger";
 const start = async () => {
   try {
     setupProcessHandlers();
+
+    await mongoDBClient.connect();
 
     const server = app.listen(config.port, () => {
       logger.info(

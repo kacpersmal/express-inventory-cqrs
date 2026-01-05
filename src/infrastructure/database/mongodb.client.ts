@@ -24,7 +24,7 @@ class MongoDBClient {
     try {
       await mongoose.connect(config.mongodb.uri);
       this.isConnected = true;
-      logger.info("✅ MongoDB connected successfully");
+      logger.info("MongoDB connected successfully");
 
       mongoose.connection.on("error", (error) => {
         logger.error({ err: error }, "MongoDB connection error");

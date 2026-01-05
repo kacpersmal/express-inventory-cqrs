@@ -1,6 +1,6 @@
 import express, { type Express, type Request, type Response } from "express";
 import pinoHttp from "pino-http";
-import { helloRoutes } from "@/features";
+import { customerRoutes, orderRoutes, productRoutes } from "@/features";
 import { errorHandler, notFoundHandler } from "@/shared/errors";
 import { logger } from "@/shared/logger";
 
@@ -15,7 +15,9 @@ app.get("/health", (_req: Request, res: Response) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-app.use("/api/hello", helloRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/customers", customerRoutes);
+app.use("/api/orders", orderRoutes);
 
 app.use(notFoundHandler);
 
