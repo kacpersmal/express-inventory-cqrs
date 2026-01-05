@@ -1,0 +1,72 @@
+@baseUrl = http://localhost:3000/api
+
+### Create an order (replace IDs with actual values)
+# This will:
+# - Validate stock availability
+# - Apply volume discounts (5+ items: 10%, 10+: 20%, 50+: 30%)
+# - Apply seasonal discounts (Black Friday: 25%, Polish holidays: 15%)
+# - Apply region-based pricing (Europe: +15% VAT, Asia: -5%)
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "customerId": "{customerId}",
+  "products": [
+    {
+      "productId": "{productId1}",
+      "quantity": 2
+    }
+  ]
+}
+
+### Create an order with multiple products
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "customerId": "{customerId}",
+  "products": [
+    {
+      "productId": "{productId1}",
+      "quantity": 3
+    },
+    {
+      "productId": "{productId2}",
+      "quantity": 2
+    }
+  ]
+}
+
+### Create a large order (triggers volume discount)
+# 10+ total items = 20% discount
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "customerId": "{customerId}",
+  "products": [
+    {
+      "productId": "{productId1}",
+      "quantity": 10
+    }
+  ]
+}
+
+### Create a bulk order (triggers maximum volume discount)
+# 50+ total items = 30% discount
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "customerId": "{customerId}",
+  "products": [
+    {
+      "productId": "{productId1}",
+      "quantity": 25
+    },
+    {
+      "productId": "{productId2}",
+      "quantity": 30
+    }
+  ]
+}

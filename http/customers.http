@@ -1,0 +1,43 @@
+@baseUrl = http://localhost:3000/api
+
+### Get all customers
+GET {{baseUrl}}/customers
+
+### Get customers by region - US
+GET {{baseUrl}}/customers?region=US
+
+### Get customers by region - Europe
+GET {{baseUrl}}/customers?region=EUROPE
+
+### Get customers by region - Asia
+GET {{baseUrl}}/customers?region=ASIA
+
+### Create a US customer
+POST {{baseUrl}}/customers
+Content-Type: application/json
+
+{
+  "name": "John Smith",
+  "email": "john.smith@example.com",
+  "region": "US"
+}
+
+### Create a European customer
+POST {{baseUrl}}/customers
+Content-Type: application/json
+
+{
+  "name": "Hans Mueller",
+  "email": "hans.mueller@example.de",
+  "region": "EUROPE"
+}
+
+### Create an Asian customer
+POST {{baseUrl}}/customers
+Content-Type: application/json
+
+{
+  "name": "Yuki Tanaka",
+  "email": "yuki.tanaka@example.jp",
+  "region": "ASIA"
+}
