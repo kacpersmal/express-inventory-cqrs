@@ -1,15 +1,27 @@
-import type { Request, Response } from "express";
-import type { PostHelloBody } from "./post-hello.schema";
+import type { ICommandHandler } from "@/infrastructure/cqrs";
+import type { PostHelloCommand } from "./post-hello.schema";
+import { logger } from "@/shared/logger";
 
-export const postHelloHandler = (
-  req: Request<unknown, unknown, PostHelloBody>,
-  res: Response,
-) => {
-  const { name, message } = req.body;
+export class PostHelloHandler implements ICommandHandler<PostHelloCommand> {
+  private lastResult: {
+    greeting: string;
+    echo: string;
+    timestamp: string;
+  } | null = null;
 
-  res.status(201).json({
-    greeting: `Hello, ${name}!`,
-    echo: message,
-    timestamp: new Date().toISOString(),
-  });
-};
+  async execute(command: PostHelloCommand): Promise<void> {
+    const { name, message } = command.params;
+
+    this.lastResult = {
+      greeting: `Hello, ${name}!`,
+      echo: message,
+      timestamp: new Date().toISOString(),
+    };
+
+    logger.info({ result: this.lastResult }, "PostHello command executed");
+  }
+
+  getLastResult() {
+    return this.lastResult;
+  }
+}

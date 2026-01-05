@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { validate } from "@/shared/middleware";
-import { getHelloHandler, getHelloQuerySchema } from "./get-hello";
-import { postHelloBodySchema, postHelloHandler } from "./post-hello";
+import { getHelloEndpoint } from "./get-hello";
+import { postHelloEndpoint } from "./post-hello";
 
 const router = Router();
 
-router.get("/", validate(getHelloQuerySchema, "query"), getHelloHandler);
-router.post("/", validate(postHelloBodySchema, "body"), postHelloHandler);
+router.get("/", ...getHelloEndpoint);
+router.post("/", ...postHelloEndpoint);
 
 export const helloRoutes = router;
