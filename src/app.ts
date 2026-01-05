@@ -1,28 +1,24 @@
-import express, {
-  type Express,
-  type NextFunction,
-  type Request,
-  type Response,
-} from "express";
+import express, { type Express, type Request, type Response } from "express";
 import pinoHttp from "pino-http";
 import { helloRoutes } from "@/features";
 import { logger } from "@/shared/logger";
+import { errorHandler, notFoundHandler } from "@/shared/errors";
 
 const app: Express = express();
 
 app.use(pinoHttp({ logger }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/health", (_req: Request, res: Response) => {
-  res.json({ status: "ok" });
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 app.use("/api/hello", helloRoutes);
 
-app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
-  req.log.error(err, "Unhandled error");
-  res.status(500).json({ error: "Internal Server Error" });
-});
+app.use(notFoundHandler);
+
+app.use(errorHandler);
 
 export default app;
