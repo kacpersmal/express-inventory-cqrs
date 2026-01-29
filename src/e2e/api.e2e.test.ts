@@ -21,7 +21,9 @@ beforeAll(async () => {
 
   await mongoose.connect(process.env.MONGODB_URI);
 
-  const appModule = await import("@/app");
+  const appModule = (await import("../app.js")) as unknown as {
+    default: Express;
+  };
   app = appModule.default;
 }, 60000);
 

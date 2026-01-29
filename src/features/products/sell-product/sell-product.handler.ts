@@ -1,53 +1,57 @@
 import type { ICommandHandler } from "@/infrastructure/cqrs";
-import { BadRequestError, NotFoundError } from "@/shared/errors";
-import { ProductModel } from "../product.model";
+import {
+  EntityNotFoundError,
+  InsufficientStockError,
+} from "@/shared/errors/domain-errors";
+import {
+  type IProductReadRepository,
+  type IProductWriteRepository,
+  productReadRepository,
+  productWriteRepository,
+} from "../repositories";
 import type {
   SellProductCommand,
   SellProductResult,
 } from "./sell-product.schema";
 
-export class SellProductHandler implements ICommandHandler<SellProductCommand> {
-  private result: SellProductResult | null = null;
+export class SellProductHandler
+  implements ICommandHandler<SellProductCommand, SellProductResult>
+{
+  constructor(
+    private readonly readRepository: IProductReadRepository = productReadRepository,
+    private readonly writeRepository: IProductWriteRepository = productWriteRepository,
+  ) {}
 
-  async execute(command: SellProductCommand): Promise<void> {
+  async execute(command: SellProductCommand): Promise<SellProductResult> {
     const { productId, quantity } = command;
 
-    const product = await ProductModel.findById(productId);
+    const product = await this.readRepository.findById(productId);
 
     if (!product) {
-      throw new NotFoundError(
-        `Product with id ${productId} not found`,
-        "PRODUCT_NOT_FOUND",
-        { productId },
-      );
+      throw new EntityNotFoundError("Product", productId);
     }
 
     if (product.stock < quantity) {
-      throw new BadRequestError(
-        `Insufficient stock. Available: ${product.stock}, Requested: ${quantity}`,
-        "INSUFFICIENT_STOCK",
-        {
-          productId,
-          availableStock: product.stock,
-          requestedQuantity: quantity,
-        },
+      throw new InsufficientStockError(
+        productId,
+        product.name,
+        product.stock,
+        quantity,
       );
     }
 
     const previousStock = product.stock;
-    product.stock -= quantity;
-    await product.save();
+    const updatedProduct = await this.writeRepository.updateStock(
+      productId,
+      -quantity,
+    );
 
-    this.result = {
-      id: product._id.toString(),
+    return {
+      id: product.id,
       name: product.name,
       previousStock,
       soldQuantity: quantity,
-      newStock: product.stock,
+      newStock: updatedProduct?.stock ?? previousStock - quantity,
     };
-  }
-
-  getResult(): SellProductResult | null {
-    return this.result;
   }
 }

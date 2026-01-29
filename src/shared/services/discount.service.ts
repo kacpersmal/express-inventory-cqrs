@@ -1,4 +1,4 @@
-import type { CustomerRegion } from "@/features/customers/customer.model";
+import type { CustomerRegion } from "@/shared/types";
 
 const POLISH_HOLIDAYS: { month: number; day: number; name: string }[] = [
   { month: 1, day: 1, name: "New Year" },

@@ -1,54 +1,60 @@
-import mongoose from "mongoose";
-import { CustomerModel } from "@/features/customers/customer.model";
-import { ProductModel } from "@/features/products/product.model";
+import type { ICustomerReadRepository } from "@/features/customers/repositories";
+import { customerReadRepository } from "@/features/customers/repositories";
+import type { IProductService } from "@/features/products/services";
+import { productService } from "@/features/products/services";
 import type { ICommandHandler } from "@/infrastructure/cqrs";
-import { BadRequestError, NotFoundError } from "@/shared/errors";
+import { MongoUnitOfWork } from "@/infrastructure/repositories";
+import {
+  EntityNotFoundError,
+  InsufficientStockError,
+} from "@/shared/errors/domain-errors";
 import { calculatePricing, type OrderItem } from "@/shared/services";
-import { OrderModel } from "../order.model";
+import {
+  type IOrderWriteRepository,
+  type OrderDto,
+  orderWriteRepository,
+} from "../repositories";
 import type { CreateOrderCommand } from "./create-order.schema";
 
-export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand> {
-  async execute(command: CreateOrderCommand): Promise<void> {
+export class CreateOrderHandler implements ICommandHandler<
+  CreateOrderCommand,
+  OrderDto
+> {
+  constructor(
+    private readonly orderRepository: IOrderWriteRepository = orderWriteRepository,
+    private readonly customerRepository: ICustomerReadRepository = customerReadRepository,
+    private readonly productSvc: IProductService = productService,
+  ) {}
+
+  async execute(command: CreateOrderCommand): Promise<OrderDto> {
     const { customerId, products } = command.params;
 
-    const customer = await CustomerModel.findById(customerId);
+    const customer = await this.customerRepository.findById(customerId);
     if (!customer) {
-      throw new NotFoundError(
-        `Customer with id ${customerId} not found`,
-        "CUSTOMER_NOT_FOUND",
-        { customerId },
-      );
+      throw new EntityNotFoundError("Customer", customerId);
     }
 
     const orderItems: OrderItem[] = [];
     const productUpdates: { productId: string; quantity: number }[] = [];
 
     for (const item of products) {
-      const product = await ProductModel.findById(item.productId);
+      const product = await this.productSvc.getProductForOrder(item.productId);
 
       if (!product) {
-        throw new NotFoundError(
-          `Product with id ${item.productId} not found`,
-          "PRODUCT_NOT_FOUND",
-          { productId: item.productId },
-        );
+        throw new EntityNotFoundError("Product", item.productId);
       }
 
       if (product.stock < item.quantity) {
-        throw new BadRequestError(
-          `Insufficient stock for product "${product.name}". Available: ${product.stock}, Requested: ${item.quantity}`,
-          "INSUFFICIENT_STOCK",
-          {
-            productId: item.productId,
-            productName: product.name,
-            availableStock: product.stock,
-            requestedQuantity: item.quantity,
-          },
+        throw new InsufficientStockError(
+          item.productId,
+          product.name,
+          product.stock,
+          item.quantity,
         );
       }
 
       orderItems.push({
-        productId: product._id.toString(),
+        productId: product.id,
         productName: product.name,
         category: product.category,
         quantity: item.quantity,
@@ -63,39 +69,37 @@ export class CreateOrderHandler implements ICommandHandler<CreateOrderCommand> {
 
     const pricing = calculatePricing(orderItems, customer.region);
 
-    const session = await mongoose.startSession();
+    const uow = new MongoUnitOfWork();
 
-    try {
-      await session.withTransaction(async () => {
-        for (const update of productUpdates) {
-          await ProductModel.findByIdAndUpdate(
-            update.productId,
-            { $inc: { stock: -update.quantity } },
-            { session },
-          );
-        }
+    const order = await uow.executeInTransaction(async () => {
+      for (const update of productUpdates) {
+        await this.productSvc.decrementStock(
+          update.productId,
+          update.quantity,
+          uow,
+        );
+      }
 
-        const order = new OrderModel({
-          customerId: new mongoose.Types.ObjectId(customerId),
-          items: orderItems.map((item) => ({
-            productId: new mongoose.Types.ObjectId(item.productId),
-            productName: item.productName,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            totalPrice: item.unitPrice * item.quantity,
-          })),
-          subtotal: pricing.subtotal,
-          discountType: pricing.discount?.type ?? null,
-          discountPercentage: pricing.discount?.percentage ?? 0,
-          discountAmount: pricing.discountAmount,
-          regionAdjustment: pricing.regionAdjustment,
-          finalTotal: pricing.finalTotal,
-        });
+      this.orderRepository.setUnitOfWork(uow);
 
-        await order.save({ session });
+      return this.orderRepository.create({
+        customerId,
+        items: orderItems.map((item) => ({
+          productId: item.productId,
+          productName: item.productName,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          totalPrice: item.unitPrice * item.quantity,
+        })),
+        subtotal: pricing.subtotal,
+        discountType: pricing.discount?.type ?? null,
+        discountPercentage: pricing.discount?.percentage ?? 0,
+        discountAmount: pricing.discountAmount,
+        regionAdjustment: pricing.regionAdjustment,
+        finalTotal: pricing.finalTotal,
       });
-    } finally {
-      await session.endSession();
-    }
+    });
+
+    return order;
   }
 }

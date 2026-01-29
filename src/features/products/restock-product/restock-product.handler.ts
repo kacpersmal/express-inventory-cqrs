@@ -1,43 +1,45 @@
 import type { ICommandHandler } from "@/infrastructure/cqrs";
-import { NotFoundError } from "@/shared/errors";
-import { ProductModel } from "../product.model";
+import { EntityNotFoundError } from "@/shared/errors/domain-errors";
+import {
+  type IProductReadRepository,
+  type IProductWriteRepository,
+  productReadRepository,
+  productWriteRepository,
+} from "../repositories";
 import type {
   RestockProductCommand,
   RestockProductResult,
 } from "./restock-product.schema";
 
 export class RestockProductHandler
-  implements ICommandHandler<RestockProductCommand>
+  implements ICommandHandler<RestockProductCommand, RestockProductResult>
 {
-  private result: RestockProductResult | null = null;
+  constructor(
+    private readonly readRepository: IProductReadRepository = productReadRepository,
+    private readonly writeRepository: IProductWriteRepository = productWriteRepository,
+  ) {}
 
-  async execute(command: RestockProductCommand): Promise<void> {
+  async execute(command: RestockProductCommand): Promise<RestockProductResult> {
     const { productId, quantity } = command;
 
-    const product = await ProductModel.findById(productId);
+    const product = await this.readRepository.findById(productId);
 
     if (!product) {
-      throw new NotFoundError(
-        `Product with id ${productId} not found`,
-        "PRODUCT_NOT_FOUND",
-        { productId },
-      );
+      throw new EntityNotFoundError("Product", productId);
     }
 
     const previousStock = product.stock;
-    product.stock += quantity;
-    await product.save();
+    const updatedProduct = await this.writeRepository.updateStock(
+      productId,
+      quantity,
+    );
 
-    this.result = {
-      id: product._id.toString(),
+    return {
+      id: product.id,
       name: product.name,
       previousStock,
       addedQuantity: quantity,
-      newStock: product.stock,
+      newStock: updatedProduct?.stock ?? previousStock + quantity,
     };
-  }
-
-  getResult(): RestockProductResult | null {
-    return this.result;
   }
 }

@@ -1,6 +1,7 @@
 import mongoose, { type Document, Schema } from "mongoose";
+import type { CustomerRegion } from "@/shared/types";
 
-export type CustomerRegion = "US" | "EUROPE" | "ASIA";
+export type { CustomerRegion };
 
 export interface ICustomer extends Document {
   name: string;

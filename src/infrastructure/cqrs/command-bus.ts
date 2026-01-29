@@ -8,7 +8,10 @@ import type {
 
 export class CommandBus {
   private static instance: CommandBus;
-  private handlers = new Map<string, ICommandHandler<ICommand>>();
+  private handlers = new Map<
+    string,
+    ICommandHandler<ICommand<unknown>, unknown>
+  >();
 
   private constructor() {}
 
@@ -19,9 +22,9 @@ export class CommandBus {
     return CommandBus.instance;
   }
 
-  register<TCommand extends ICommand>(
+  register<TCommand extends ICommand<TResult>, TResult = void>(
     commandType: string,
-    HandlerClass: CommandHandlerClass<TCommand>,
+    HandlerClass: CommandHandlerClass<TCommand, TResult>,
     dependencies: unknown[] = [],
   ): void {
     if (this.handlers.has(commandType)) {
@@ -29,11 +32,14 @@ export class CommandBus {
     }
 
     const handler = new HandlerClass(...dependencies);
-    this.handlers.set(commandType, handler as ICommandHandler<ICommand>);
+    this.handlers.set(
+      commandType,
+      handler as ICommandHandler<ICommand<unknown>, unknown>,
+    );
     logger.info({ commandType }, "Command handler registered");
   }
 
-  async execute<TCommand extends ICommand>(command: TCommand): Promise<void> {
+  async execute<TResult>(command: ICommand<TResult>): Promise<TResult> {
     const handler = this.handlers.get(command.type);
 
     if (!handler) {
@@ -43,11 +49,12 @@ export class CommandBus {
     logger.debug({ commandType: command.type }, "Executing command");
 
     try {
-      await handler.execute(command);
+      const result = await handler.execute(command);
       logger.debug(
         { commandType: command.type },
         "Command executed successfully",
       );
+      return result as TResult;
     } catch (error) {
       logger.error(
         { err: error, commandType: command.type },

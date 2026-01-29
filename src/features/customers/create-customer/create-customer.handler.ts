@@ -1,29 +1,37 @@
 import type { ICommandHandler } from "@/infrastructure/cqrs";
-import { ConflictError } from "@/shared/errors";
-import { CustomerModel } from "../customer.model";
+import { EntityAlreadyExistsError } from "@/shared/errors/domain-errors";
+import type { CustomerRegion } from "../customer.model";
+import {
+  type CustomerDto,
+  customerReadRepository,
+  customerWriteRepository,
+  type ICustomerReadRepository,
+  type ICustomerWriteRepository,
+} from "../repositories";
 import type { CreateCustomerCommand } from "./create-customer.schema";
 
 export class CreateCustomerHandler
-  implements ICommandHandler<CreateCustomerCommand>
+  implements ICommandHandler<CreateCustomerCommand, CustomerDto>
 {
-  async execute(command: CreateCustomerCommand): Promise<void> {
+  constructor(
+    private readonly readRepository: ICustomerReadRepository = customerReadRepository,
+    private readonly writeRepository: ICustomerWriteRepository = customerWriteRepository,
+  ) {}
+
+  async execute(command: CreateCustomerCommand): Promise<CustomerDto> {
     const { name, email, region } = command.params;
 
-    const existingCustomer = await CustomerModel.findOne({ email });
+    const existingCustomer = await this.readRepository.findByEmail(email);
     if (existingCustomer) {
-      throw new ConflictError(
-        `Customer with email ${email} already exists`,
-        "CUSTOMER_EMAIL_EXISTS",
-        { email },
-      );
+      throw new EntityAlreadyExistsError("Customer", "email", email);
     }
 
-    const customer = new CustomerModel({
+    const customer = await this.writeRepository.create({
       name,
       email,
-      region,
+      region: region as CustomerRegion,
     });
 
-    await customer.save();
+    return customer;
   }
 }

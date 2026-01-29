@@ -1,5 +1,6 @@
 import { z } from "zod/v3";
 import type { ICommand } from "@/infrastructure/cqrs";
+import type { OrderDto } from "../repositories";
 
 export const createOrderBodySchema = z.object({
   customerId: z.string().min(1),
@@ -15,28 +16,7 @@ export const createOrderBodySchema = z.object({
 
 export type CreateOrderBodyParams = z.infer<typeof createOrderBodySchema>;
 
-export interface OrderItemResult {
-  productId: string;
-  productName: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-}
-
-export interface CreateOrderResult {
-  id: string;
-  customerId: string;
-  items: OrderItemResult[];
-  subtotal: number;
-  discountType: string | null;
-  discountPercentage: number;
-  discountAmount: number;
-  regionAdjustment: number;
-  finalTotal: number;
-  createdAt: string;
-}
-
-export class CreateOrderCommand implements ICommand {
+export class CreateOrderCommand implements ICommand<OrderDto> {
   readonly type = "CreateOrderCommand";
 
   constructor(public readonly params: CreateOrderBodyParams) {}

@@ -12,7 +12,8 @@ commandBus.register("SellProductCommand", SellProductHandler);
 
 export * from "./create-product";
 export * from "./get-products";
-export * from "./product.model";
+export * from "./repositories";
 export * from "./restock-product";
 export * from "./routes";
 export * from "./sell-product";
+export * from "./services";

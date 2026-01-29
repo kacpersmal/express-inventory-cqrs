@@ -1,5 +1,6 @@
 import { z } from "zod/v3";
 import type { ICommand } from "@/infrastructure/cqrs";
+import type { ProductDto } from "../repositories";
 
 export const createProductBodySchema = z.object({
   name: z.string().min(1).max(50),
@@ -11,17 +12,7 @@ export const createProductBodySchema = z.object({
 
 export type CreateProductBodyParams = z.infer<typeof createProductBodySchema>;
 
-export interface CreateProductResult {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  stock: number;
-  category: string;
-  createdAt: string;
-}
-
-export class CreateProductCommand implements ICommand {
+export class CreateProductCommand implements ICommand<ProductDto> {
   readonly type = "CreateProductCommand";
 
   constructor(public readonly params: CreateProductBodyParams) {}

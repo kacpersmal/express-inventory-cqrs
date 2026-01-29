@@ -9,4 +9,5 @@ commandBus.register("CreateCustomerCommand", CreateCustomerHandler);
 export * from "./create-customer";
 export * from "./customer.model";
 export * from "./get-customers";
+export * from "./repositories";
 export * from "./routes";

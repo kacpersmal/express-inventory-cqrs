@@ -2,7 +2,6 @@ import type { Request, Response } from "express";
 import { commandBus } from "@/infrastructure/cqrs";
 import { asyncHandler } from "@/shared/errors";
 import { validate } from "@/shared/middleware";
-import { CustomerModel } from "../customer.model";
 import {
   type CreateCustomerBodyParams,
   CreateCustomerCommand,
@@ -17,21 +16,11 @@ export const createCustomerEndpoint = [
       res: Response,
     ) => {
       const command = new CreateCustomerCommand(req.body);
-      await commandBus.execute(command);
-
-      const customer = await CustomerModel.findOne({
-        email: req.body.email,
-      }).lean();
+      const customer = await commandBus.execute(command);
 
       res.status(201).json({
         success: true,
-        data: {
-          id: customer?._id?.toString(),
-          name: customer?.name,
-          email: customer?.email,
-          region: customer?.region,
-          createdAt: customer?.createdAt,
-        },
+        data: customer,
       });
     },
   ),

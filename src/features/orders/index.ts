@@ -4,5 +4,5 @@ import { CreateOrderHandler } from "./create-order";
 commandBus.register("CreateOrderCommand", CreateOrderHandler);
 
 export * from "./create-order";
-export * from "./order.model";
+export * from "./repositories";
 export * from "./routes";

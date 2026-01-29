@@ -1,5 +1,6 @@
 import { z } from "zod/v3";
 import type { IQuery } from "@/infrastructure/cqrs";
+import type { ProductDto } from "../repositories";
 
 export const getProductsQuerySchema = z.object({
   category: z.string().max(50).optional(),
@@ -8,17 +9,6 @@ export const getProductsQuerySchema = z.object({
 });
 
 export type GetProductsQueryParams = z.infer<typeof getProductsQuerySchema>;
-
-export interface ProductDto {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  stock: number;
-  category: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export interface GetProductsQueryResult {
   products: ProductDto[];

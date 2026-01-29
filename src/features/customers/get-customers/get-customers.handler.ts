@@ -1,7 +1,9 @@
 import type { IQueryHandler } from "@/infrastructure/cqrs";
-import { CustomerModel } from "../customer.model";
+import {
+  customerReadRepository,
+  type ICustomerReadRepository,
+} from "../repositories";
 import type {
-  CustomerDto,
   GetCustomersQuery,
   GetCustomersQueryResult,
 } from "./get-customers.schema";
@@ -9,28 +11,22 @@ import type {
 export class GetCustomersHandler
   implements IQueryHandler<GetCustomersQuery, GetCustomersQueryResult>
 {
+  constructor(
+    private readonly readRepository: ICustomerReadRepository = customerReadRepository,
+  ) {}
+
   async execute(query: GetCustomersQuery): Promise<GetCustomersQueryResult> {
     const { region } = query.params;
 
-    const filter: Record<string, unknown> = {};
+    const filter = { region };
 
-    if (region) {
-      filter.region = region;
-    }
-
-    const customers = await CustomerModel.find(filter).sort({ createdAt: -1 });
-    const total = await CustomerModel.countDocuments(filter);
-
-    const customerDtos: CustomerDto[] = customers.map((customer) => ({
-      id: customer._id.toString(),
-      name: customer.name,
-      email: customer.email,
-      region: customer.region,
-      createdAt: customer.createdAt.toISOString(),
-    }));
+    const [customers, total] = await Promise.all([
+      this.readRepository.findAll(filter),
+      this.readRepository.count(filter),
+    ]);
 
     return {
-      customers: customerDtos,
+      customers,
       total,
     };
   }

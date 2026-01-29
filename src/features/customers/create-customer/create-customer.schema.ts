@@ -1,6 +1,6 @@
 import { z } from "zod/v3";
 import type { ICommand } from "@/infrastructure/cqrs";
-import type { CustomerRegion } from "../customer.model";
+import type { CustomerDto } from "../repositories";
 
 export const createCustomerBodySchema = z.object({
   name: z.string().min(1).max(100),
@@ -10,15 +10,7 @@ export const createCustomerBodySchema = z.object({
 
 export type CreateCustomerBodyParams = z.infer<typeof createCustomerBodySchema>;
 
-export interface CreateCustomerResult {
-  id: string;
-  name: string;
-  email: string;
-  region: CustomerRegion;
-  createdAt: string;
-}
-
-export class CreateCustomerCommand implements ICommand {
+export class CreateCustomerCommand implements ICommand<CustomerDto> {
   readonly type = "CreateCustomerCommand";
 
   constructor(public readonly params: CreateCustomerBodyParams) {}

@@ -20,7 +20,7 @@ export interface SellProductResult {
   newStock: number;
 }
 
-export class SellProductCommand implements ICommand {
+export class SellProductCommand implements ICommand<SellProductResult> {
   readonly type = "SellProductCommand";
 
   constructor(
