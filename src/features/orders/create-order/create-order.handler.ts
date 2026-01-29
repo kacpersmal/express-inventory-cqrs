@@ -16,10 +16,9 @@ import {
 } from "../repositories";
 import type { CreateOrderCommand } from "./create-order.schema";
 
-export class CreateOrderHandler implements ICommandHandler<
-  CreateOrderCommand,
-  OrderDto
-> {
+export class CreateOrderHandler
+  implements ICommandHandler<CreateOrderCommand, OrderDto>
+{
   constructor(
     private readonly orderRepository: IOrderWriteRepository = orderWriteRepository,
     private readonly customerRepository: ICustomerReadRepository = customerReadRepository,

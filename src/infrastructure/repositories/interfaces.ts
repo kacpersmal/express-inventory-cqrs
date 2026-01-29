@@ -22,4 +22,5 @@ export interface IWriteRepository<TEntity, TId = string> {
 }
 
 export interface IRepository<TEntity, TId = string>
-  extends IReadRepository<TEntity, TId>, IWriteRepository<TEntity, TId> {}
+  extends IReadRepository<TEntity, TId>,
+    IWriteRepository<TEntity, TId> {}
