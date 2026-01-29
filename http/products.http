@@ -1,0 +1,67 @@
+@baseUrl = http://localhost:3000/api
+
+### Get all products
+GET {{baseUrl}}/products
+
+### Get products by category
+GET {{baseUrl}}/products?category=electronics
+
+### Get products with price range
+GET {{baseUrl}}/products?minPrice=10&maxPrice=100
+
+### Get products with all filters
+GET {{baseUrl}}/products?category=electronics&minPrice=50&maxPrice=500
+
+### Create a product
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "Wireless Mouse",
+  "description": "Ergonomic wireless mouse with USB receiver",
+  "price": 29.99,
+  "stock": 150,
+  "category": "electronics"
+}
+
+### Create another product
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "Mechanical Keyboard",
+  "description": "RGB mechanical keyboard with blue switches",
+  "price": 89.99,
+  "stock": 75,
+  "category": "electronics"
+}
+
+### Create a clothing product
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "Winter Jacket",
+  "description": "Warm waterproof winter jacket",
+  "price": 149.99,
+  "stock": 30,
+  "category": "clothing"
+}
+
+### Restock a product (replace {productId} with actual ID)
+# @name restockProduct
+POST {{baseUrl}}/products/{productId}/restock
+Content-Type: application/json
+
+{
+  "quantity": 50
+}
+
+### Sell a product (replace {productId} with actual ID)
+# @name sellProduct
+POST {{baseUrl}}/products/{productId}/sell
+Content-Type: application/json
+
+{
+  "quantity": 5
+}
